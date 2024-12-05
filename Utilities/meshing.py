@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from . import camutils
 
 from scipy.spatial import Delaunay
 
@@ -32,7 +31,6 @@ def bounding_box_pruning(pts2L,pts2R,pts3, boxLimits):
 def triangle_pruning(pts2L,pts2R,pts3, trithresh):
 
     triangulateR = Delaunay(pts2R)
-    
     #
     # triangle pruning
     #
