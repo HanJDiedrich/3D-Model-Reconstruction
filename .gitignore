@@ -1,6 +1,6 @@
 # My files
 config.py
-Utlities.testing.py
+Utilities/testing.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
