@@ -53,7 +53,7 @@ def vis_scene(camL,camR,pts3,looklength=20):
   set_axes_equal_3d(ax)
   label_axes(ax)
   plt.title('scene 3D view')
-
+  
   # 2D view of the XZ axis
   ax = fig.add_subplot(2,2,2)
   ax.plot(pts3[0,:],pts3[2,:],'.')

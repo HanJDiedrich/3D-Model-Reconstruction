@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from . import camutils
-from config import GRAB0
 
 # Convert image to grayscale and float to use for decoding gray -> binary
 def image_convert(image):
@@ -128,49 +127,3 @@ def reconstruct(imprefixL, imprefixR, gray_threshold, colorImprefixL, colorImpre
     pts3 = camutils.triangulate(pts2L,camL,pts2R,camR)
 
     return pts2L,pts2R,pts3
-    '''
-    # Decode the H and V coordinates for the two views
-    # right
-    HR,HmaskR = decode_gray(imprefixR, 0, gray_threshold)
-    VR,VmaskR = decode_gray(imprefixR, 20, gray_threshold)
-    colorMaskR = decode_color(colorImprefixR, color_threshold)
-
-    # left
-    HL,HmaskL = decode_gray(imprefixL, 0, gray_threshold)
-    VL,VmaskL = decode_gray(imprefixL, 20, gray_threshold)
-    colorMaskL = decode_color(colorImprefixL, color_threshold)
- 
-    # Construct the combined 20 bit code C = H + 1024*V and mask for each view
-    CR = HR + 1024 * VR
-    CL = HL + 1024 * VL
-    # Account for color mask
-    Rmask = HmaskR * VmaskR * colorMaskR
-    Lmask = HmaskL * VmaskL * colorMaskL
-    
-    # Find the indices of pixels in the left and right code image that 
-    # have matching codes. If there are multiple matches, just
-    # choose one arbitrarily.
-
-    # Mask undecodeable/invalid
-    CR = CR * Rmask
-    CL = CL * Lmask
-
-    #intersection, matchR, matchL = np.intersect1d(CR, CL, return_indices=True)
-    matchR = np.intersect1d(CR, CL, return_indices=True)[1]
-    matchL = np.intersect1d(CL, CR, return_indices=True)[1]
-
-    # Find w and h
-    image = image_convert(plt.imread(f"{imprefixL}{(0):02d}.png"))
-    h,w = image.shape
-    
-    xx,yy = np.meshgrid(range(w),range(h))
-    xx = np.reshape(xx,(-1,1))
-    yy = np.reshape(yy,(-1,1))
-    pts2R = np.concatenate((xx[matchR].T,yy[matchR].T),axis=0)
-    pts2L = np.concatenate((xx[matchL].T,yy[matchL].T),axis=0)
-
-    # Now triangulate the points
-    pts3 = camutils.triangulate(pts2L,camL,pts2R,camR)
-    
-    return pts2L,pts2R,pts3
-    '''
