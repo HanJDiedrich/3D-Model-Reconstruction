@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import glob
-import camutils
+from . import camutils
 
 def getImages(filePath):
     images = glob.glob(filePath)

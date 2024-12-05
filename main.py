@@ -1,10 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import cv2
-import glob
-import camutils
-import calibration
-import decode
+
+import Utilities.camutils as camutils
+import Utilities.calibration as calibration
+import Utilities.decode as decode
 
 
 # Set up chessboard

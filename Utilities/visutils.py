@@ -1,5 +1,5 @@
 import numpy as np
-import camutils
+from . import camutils
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from mpl_toolkits.mplot3d import Axes3D
