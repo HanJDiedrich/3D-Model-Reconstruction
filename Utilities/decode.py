@@ -95,19 +95,6 @@ def reconstruct(imprefixL, imprefixR, gray_threshold, colorImprefixL, colorImpre
     Lmask = HmaskL * VmaskL * colorMaskL
     Rmask = HmaskR * VmaskR * colorMaskR
     
-    
-    '''
-    subL = np.nonzero(Lmask.flatten())
-    subR = np.nonzero(Rmask.flatten())
-    
-    CRgood = CR.flatten()[subR]
-    CLgood = CL.flatten()[subL]
-
-    _,submatchR,submatchL = np.intersect1d(CRgood, CLgood, return_indices=True)
-
-    matchR = subR[0][submatchR]
-    matchL = subL[0][submatchL]
-    '''
     # Mask undecodeable/invalid
     CR = CR * Rmask
     CL = CL * Lmask
@@ -115,7 +102,6 @@ def reconstruct(imprefixL, imprefixR, gray_threshold, colorImprefixL, colorImpre
     #intersection, matchR, matchL = np.intersect1d(CR, CL, return_indices=True)
     matchR = np.intersect1d(CR, CL, return_indices=True)[1]
     matchL = np.intersect1d(CL, CR, return_indices=True)[1]
-
 
     h,w = CL.shape
     xx,yy = np.meshgrid(range(w),range(h))
