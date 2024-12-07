@@ -113,3 +113,63 @@ def reconstruct(imprefixL, imprefixR, gray_threshold, colorImprefixL, colorImpre
     pts3 = camutils.triangulate(pts2L,camL,pts2R,camR)
 
     return pts2L,pts2R,pts3
+
+
+# Color reconstruction
+def reconstruct_with_rgb(imprefixL, imprefixR, gray_threshold, 
+                         colorImprefixL, colorImprefixR, color_threshold, 
+                         camL, camR, left_image_path):
+    """
+    Integrate decoding, disparity computation, and RGB extraction 
+    to generate a dense 3D point cloud with color information.
+    """
+    """
+    Performing matching and triangulation of points on the surface using structured
+    illumination.
+    """
+    # left
+    HL,HmaskL = decode_gray(imprefixL, 0, gray_threshold)
+    VL,VmaskL = decode_gray(imprefixL, 20, gray_threshold)
+    colorMaskL = decode_color(colorImprefixL, color_threshold)
+
+    # right
+    HR,HmaskR = decode_gray(imprefixR, 0, gray_threshold)
+    VR,VmaskR = decode_gray(imprefixR, 20, gray_threshold)
+    colorMaskR = decode_color(colorImprefixR, color_threshold)
+
+    # Construct the combined 20 bit code C = H + 1024*V and mask for each view
+    CL = HL + 1024 * VL
+    CR = HR + 1024 * VR
+    
+    # Account for color mask
+    Lmask = HmaskL * VmaskL * colorMaskL
+    Rmask = HmaskR * VmaskR * colorMaskR
+    
+    # Mask undecodeable/invalid
+    CR = CR * Rmask
+    CL = CL * Lmask
+
+    #intersection, matchR, matchL = np.intersect1d(CR, CL, return_indices=True)
+    matchR = np.intersect1d(CR, CL, return_indices=True)[1]
+    matchL = np.intersect1d(CL, CR, return_indices=True)[1]
+
+    h,w = CL.shape
+    xx,yy = np.meshgrid(range(w),range(h))
+    xx = np.reshape(xx,(-1,1))
+    yy = np.reshape(yy,(-1,1))
+    pts2R = np.concatenate((xx[matchR].T,yy[matchR].T),axis=0)
+    pts2L = np.concatenate((xx[matchL].T,yy[matchL].T),axis=0)
+    
+    pts3 = camutils.triangulate(pts2L,camL,pts2R,camR)
+
+    # Extract RGB Values from Left Image
+    left_image = plt.imread(left_image_path)  # Load color image (H, W, 3)
+    left_image = (left_image * 255).astype(np.uint8)  # Ensure values are in 0–255
+
+    rgb_values = []
+    for x, y in zip(pts2L[0], pts2L[1]):
+        rgb_values.append(left_image[int(y), int(x)])  # Extract RGB at (x, y)
+
+    rgb_values = np.array(rgb_values)
+
+    return pts2L, pts2R, pts3, rgb_values

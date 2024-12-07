@@ -1,6 +1,8 @@
 # My files
 config.py
 Utilities/testing.py
+point_clouds
+*.ply
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

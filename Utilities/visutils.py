@@ -90,3 +90,18 @@ def vis_scene(camL,camR,pts3,looklength=20):
   plt.grid()
   plt.xlabel('x')
   plt.ylabel('y')
+
+def vis_mesh(pts3, valid_triangles):
+    
+  fig = plt.figure()
+  ax = fig.add_subplot(111, projection='3d')
+
+  # Plot the triangle mesh
+  triangles = valid_triangles
+  x = pts3[0]
+  y = pts3[1]
+  z = pts3[2]
+  ax.plot_trisurf(x, y, z, triangles=triangles, cmap='viridis')
+
+  plt.show()
+
