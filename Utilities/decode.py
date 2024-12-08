@@ -118,7 +118,7 @@ def reconstruct(imprefixL, imprefixR, gray_threshold, colorImprefixL, colorImpre
 # Color reconstruction
 def reconstruct_with_rgb(imprefixL, imprefixR, gray_threshold, 
                          colorImprefixL, colorImprefixR, color_threshold, 
-                         camL, camR, left_image_path):
+                         camL, camR):
     """
     Integrate decoding, disparity computation, and RGB extraction 
     to generate a dense 3D point cloud with color information.
@@ -161,15 +161,11 @@ def reconstruct_with_rgb(imprefixL, imprefixR, gray_threshold,
     pts2L = np.concatenate((xx[matchL].T,yy[matchL].T),axis=0)
     
     pts3 = camutils.triangulate(pts2L,camL,pts2R,camR)
+    # Extract colors for matched points
+    imageL = plt.imread(f"{colorImprefixL}{(0):02d}.png")
+    imageR = plt.imread(f"{colorImprefixR}{(1):02d}.png")
 
-    # Extract RGB Values from Left Image
-    left_image = plt.imread(left_image_path)  # Load color image (H, W, 3)
-    left_image = (left_image * 255).astype(np.uint8)  # Ensure values are in 0–255
+    colorsL = imageL[yy[matchL].flatten(), xx[matchL].flatten()]
+    colorsR = imageR[yy[matchR].flatten(), xx[matchR].flatten()]
 
-    rgb_values = []
-    for x, y in zip(pts2L[0], pts2L[1]):
-        rgb_values.append(left_image[int(y), int(x)])  # Extract RGB at (x, y)
-
-    rgb_values = np.array(rgb_values)
-
-    return pts2L, pts2R, pts3, rgb_values
+    return pts2L, pts2R, pts3, colorsL, colorsR

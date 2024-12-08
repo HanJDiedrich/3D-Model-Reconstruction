@@ -3,6 +3,7 @@ from . import camutils
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from mpl_toolkits.mplot3d import Axes3D
+import open3d as o3d
 
 def set_axes_equal_3d(ax):
     '''Make axes of 3D plot have equal scale so that spheres appear as spheres,
@@ -93,7 +94,7 @@ def vis_scene(camL,camR,pts3,looklength=20):
 
 def vis_mesh(pts3, valid_triangles):
     
-  fig = plt.figure()
+  fig = plt.figure(figsize=(5, 4))
   ax = fig.add_subplot(111, projection='3d')
 
   # Plot the triangle mesh
@@ -105,3 +106,40 @@ def vis_mesh(pts3, valid_triangles):
 
   plt.show()
 
+def visualize_point_cloud(pts3, colors):
+    # Ensure correct shape (n_points, 3)
+    point_cloud = pts3.T
+    
+    # Create figure
+    fig = plt.figure(figsize=(5, 4))
+    ax = fig.add_subplot(111, projection='3d')
+
+    ax.scatter(
+        point_cloud[:, 0], 
+        point_cloud[:, 1], 
+        point_cloud[:, 2],
+        c=colors,
+        s=1
+    )
+    
+    ax.set_title('Point Cloud Color Visualization')
+    plt.show()
+
+def visualize_point_cloud_Open3d(pts3, colors):
+    # Ensure correct shape (n_points, 3)
+    point_cloud = pts3.T
+    
+    # Create Open3D point cloud
+    pcd = o3d.geometry.PointCloud()
+    
+    pcd.points = o3d.utility.Vector3dVector(point_cloud)
+    pcd.colors = o3d.utility.Vector3dVector(colors)  # Normalize colors
+    
+    # Visualize
+    #o3d.visualization.draw_geometries([pcd])
+
+    vis = o3d.visualization.Visualizer()
+    vis.create_window(width=800, height=600)
+    vis.add_geometry(pcd)
+    vis.run()
+    #vis.destroy_window()

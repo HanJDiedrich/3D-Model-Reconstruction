@@ -2,7 +2,10 @@
 config.py
 Utilities/testing.py
 point_clouds
+point_clouds_RGB
 *.ply
+WriteUp
+.png
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
