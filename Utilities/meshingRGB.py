@@ -81,38 +81,101 @@ def triangle_pruning_RGB(pts2L,pts2R,pts3, colorsL, colorsR, trithresh):
     return pts2L, pts2R, pts3, colorsL_triangled, colorsR_triangled, remapped_triangles
 
 
-
-def save_point_cloud_RGB(pts3, colors, filename, folder='point_clouds_RGB'):
-    os.makedirs(folder, exist_ok=True)
+'''
+Based on Professor Charless Fowlkes meshutils.writeply()
+'''
+def save_point_cloud_RGB(pts3, colors, tri, filename, folder='point_clouds_RGB'):
+    """
+    Save out a triangulated mesh to a ply file
     
-    # Create full file path
+    Parameters
+    ----------
+    pts3 : 2D numpy.array (dtype=float)
+        vertex coordinates shape (3,Nvert)
+        
+    color : 2D numpy.array (dtype=float)
+        vertex colors shape (3,Nvert)
+        should be float in range (0..1)
+        
+    tri : 2D numpy.array (dtype=float)
+        triangular faces shape (Ntri,3)
+        
+    filename : string
+        filename to save to    
+    """
+    # Create folder and file path
+    os.makedirs(folder, exist_ok=True)
     full_path = os.path.join(folder, filename)
 
-    # Transpose to get (n, 3) shape
-    point_cloud = pts3.T
+    #convert colors to proper format
+    colors = (colors * 255).astype(np.uint8)
 
-    # Transpose to get (3, n) shape for Ensure colors are in the right format 
-    colors = colors.T
-    if colors.dtype == np.float32 or colors.dtype == np.float64:
-        colors = (colors * 255).astype(np.uint8)
-
-    # Combine points and colors
-    point_cloud__RGB = np.column_stack((point_cloud, colors.T))
-    
     # Save PLY file
     with open(full_path, 'w') as f:
         f.write("ply\n")
         f.write("format ascii 1.0\n")
-        f.write(f"element vertex {len(point_cloud)}\n")
+        f.write(f"element vertex {pts3.shape[1]}\n")
         f.write("property float x\n")
         f.write("property float y\n")
         f.write("property float z\n")
         f.write("property uchar red\n")
         f.write("property uchar green\n")
         f.write("property uchar blue\n")
+        f.write(f"element face {tri.shape[0]}\n")
+        f.write("property list uchar int vertex_indices\n")
         f.write("end_header\n")
         
         # Write point data with colors
-        np.savetxt(f, point_cloud__RGB, fmt='%.6f %.6f %.6f %d %d %d')
+        for i in range(pts3.shape[1]):
+            f.write('%f %f %f %i %i %i\n' % (pts3[0,i],pts3[1,i],pts3[2,i],colors[0,i],colors[1,i],colors[2,i]))
+        
+        # Write face data (Triangles)
+        for t in range(tri.shape[0]):
+            f.write('3 %d %d %d\n' % (tri[t,1],tri[t,0],tri[t,2]))
+
+    print(f".PLY saved to: {full_path}")
+
+
+
+def writeply(X,color,tri,filename):
+    """
+    Save out a triangulated mesh to a ply file
     
-    print(f"Point cloud saved to: {full_path}")
+    Parameters
+    ----------
+    pts3 : 2D numpy.array (dtype=float)
+        vertex coordinates shape (3,Nvert)
+        
+    color : 2D numpy.array (dtype=float)
+        vertex colors shape (3,Nvert)
+        should be float in range (0..1)
+        
+    tri : 2D numpy.array (dtype=float)
+        triangular faces shape (Ntri,3)
+        
+    filename : string
+        filename to save to    
+    """
+    f = open(filename,"w")
+    f.write('ply\n')
+    f.write('format ascii 1.0\n')
+    f.write('element vertex %i\n' % X.shape[1])
+    f.write('property float x\n')
+    f.write('property float y\n')
+    f.write('property float z\n')
+    f.write('property uchar red\n')
+    f.write('property uchar green\n')
+    f.write('property uchar blue\n')
+    f.write('element face %d\n' % tri.shape[0])
+    f.write('property list uchar int vertex_indices\n')
+    f.write('end_header\n')
+
+    C = (255*color).astype('uint8')
+    
+    for i in range(X.shape[1]):
+        f.write('%f %f %f %i %i %i\n' % (X[0,i],X[1,i],X[2,i],C[0,i],C[1,i],C[2,i]))
+    
+    for t in range(tri.shape[0]):
+        f.write('3 %d %d %d\n' % (tri[t,1],tri[t,0],tri[t,2]))
+
+    f.close()
