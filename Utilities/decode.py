@@ -120,7 +120,7 @@ def reconstruct_with_rgb(imprefixL, imprefixR, gray_threshold,
                          colorImprefixL, colorImprefixR, color_threshold, 
                          camL, camR):
     """
-    Integrate decoding, disparity computation, and RGB extraction 
+    Integrate decoding, and RGB extraction 
     to generate a dense 3D point cloud with color information.
     """
     """
